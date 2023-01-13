@@ -11,14 +11,16 @@ get_platform() {
   platform="$(uname | tr '[:upper:]' '[:lower:]')"
 
   case "$platform" in
-  linux | darwin | freebsd)
+  linux | darwin)
     [ -z "$silent" ] && msg "Platform '${platform}' supported!"
     ;;
   *)
     fail "Platform '${platform}' not supported!"
     ;;
   esac
-
+  if [[ "${platform}" == "darwin" ]]; then
+    platform=OSX
+  fi
   printf "%s" "$platform"
 }
 
