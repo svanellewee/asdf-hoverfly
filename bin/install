@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
+set -eu
+[ "${BASH_VERSINFO[0]}" -ge 3 ] && set -o pipefail
 
-set -euo pipefail
+PLUGIN_DIR="$(dirname "${BASH_SOURCE[0]}")/.."
 
-current_script_path=${BASH_SOURCE[0]}
-plugin_dir=$(dirname "$(dirname "$current_script_path")")
+# shellcheck source=/dev/null
+source "$PLUGIN_DIR/lib/helpers.sh"
 
-# shellcheck source=../lib/utils.bash
-source "${plugin_dir}/lib/utils.bash"
+install_hoverfly() {
+  local version="$1"
+  local download_path="$2"
+  local install_path="$3"
 
-install_version "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
+  if [ -z "$download_path" ]; then
+    download_path=$(mktemp -dt asdf-hoverfly.XXXX)
+    ASDF_INSTALL_VERSION="$version" ASDF_DOWNLOAD_PATH="$download_path" "$PLUGIN_DIR/bin/download"
+  fi
+  unzip -d "${install_path}/bin" "${download_path}/archive"
+}
+install_hoverfly "$ASDF_INSTALL_VERSION" "${ASDF_DOWNLOAD_PATH:-}" "$ASDF_INSTALL_PATH"

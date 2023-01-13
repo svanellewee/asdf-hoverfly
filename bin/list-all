@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
+set -eu
+[ "${BASH_VERSINFO[0]}" -ge 3 ] && set -o pipefail
 
-set -euo pipefail
+list-hoverfly-versions() {
+  git ls-remote --tags https://github.com/SpectoLabs/hoverfly "v*" | {
+    declare -a line
+    while IFS=$'\t' read -r -a line; do
+      echo "${line[1]##*/v}"
+    done
+  } | xargs
+}
 
-current_script_path=${BASH_SOURCE[0]}
-plugin_dir=$(dirname "$(dirname "$current_script_path")")
-
-# shellcheck source=../lib/utils.bash
-source "${plugin_dir}/lib/utils.bash"
-
-list_all_versions | sort_versions | xargs echo
+list-hoverfly-versions
